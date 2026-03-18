@@ -4,6 +4,15 @@ import { createRequire } from 'node:module';
 import open from 'open';
 import pc from 'picocolors';
 import { isGitRepo, isValidGitRef, getRepoRoot, getRepoName, normalizeRef } from '@diffity/git';
+import {
+  isGitHubPrUrl,
+  parseGitHubPrUrl,
+  checkoutPr,
+  getPrBaseRef,
+  isCliInstalled,
+  isAuthenticated,
+  detectRemote,
+} from '@diffity/github';
 import { startServer } from './server.js';
 import { registerAgentCommands } from './agent.js';
 import { findInstanceForRepo, findAvailablePort, deregisterInstance } from './registry.js';
@@ -40,6 +49,7 @@ Common usage:
   $ diffity HEAD~1                       Review your last commit
   $ diffity --base main --compare feature   Compare two branches
   $ diffity v1.0.0 v2.0.0                  Compare two tags
+  $ diffity https://github.com/owner/repo/pull/123   Review a GitHub PR
 
 The --base/--compare flags are optional — positional args and
 range syntax (main..feature, main...feature) also work.`)
@@ -52,6 +62,64 @@ range syntax (main..feature, main...feature) also work.`)
     if (!isGitRepo()) {
       console.error(pc.red('Error: Not a git repository'));
       process.exit(1);
+    }
+
+    if (refs.length === 1 && isGitHubPrUrl(refs[0])) {
+      const parsed = parseGitHubPrUrl(refs[0]);
+      if (!parsed) {
+        console.error(pc.red('Error: Invalid GitHub PR URL format.'));
+        console.log(`  Expected: ${pc.cyan('https://github.com/owner/repo/pull/123')}`);
+        process.exit(1);
+      }
+
+      if (!isCliInstalled()) {
+        console.error(pc.red('Error: GitHub CLI (gh) is not installed.'));
+        console.log(`  Install it from ${pc.cyan('https://cli.github.com')}`);
+        process.exit(1);
+      }
+
+      if (!isAuthenticated()) {
+        console.error(pc.red('Error: Not authenticated with GitHub CLI.'));
+        console.log(`  Run ${pc.cyan('gh auth login')} to authenticate.`);
+        process.exit(1);
+      }
+
+      const remote = detectRemote();
+      if (!remote) {
+        console.error(pc.red('Error: No GitHub remote detected for this repository.'));
+        process.exit(1);
+      }
+
+      if (
+        remote.owner.toLowerCase() !== parsed.owner.toLowerCase() ||
+        remote.repo.toLowerCase() !== parsed.repo.toLowerCase()
+      ) {
+        console.error(pc.red('Error: PR belongs to a different repository.'));
+        console.log(`  PR:    ${pc.cyan(`${parsed.owner}/${parsed.repo}`)}`);
+        console.log(`  Local: ${pc.cyan(`${remote.owner}/${remote.repo}`)}`);
+        process.exit(1);
+      }
+
+      try {
+        if (!opts.quiet) {
+          console.log(pc.dim(`  Checking out PR #${parsed.number}...`));
+        }
+        checkoutPr(parsed.number);
+      } catch (err) {
+        console.error(pc.red(`Error: Failed to checkout PR #${parsed.number}.`));
+        console.log(`  ${err}`);
+        process.exit(1);
+      }
+
+      let baseRef: string;
+      try {
+        baseRef = getPrBaseRef(parsed.number);
+      } catch {
+        console.error(pc.red(`Error: Could not determine base branch for PR #${parsed.number}.`));
+        process.exit(1);
+      }
+
+      refs[0] = baseRef;
     }
 
     // --base/--compare flags take precedence over positional args

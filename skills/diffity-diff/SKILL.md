@@ -10,7 +10,7 @@ You are opening the diffity diff viewer so the user can see their changes in the
 
 ## Arguments
 
-- `ref` (optional): Git ref to diff (e.g. `main..feature`, `HEAD~3`). Defaults to working tree changes.
+- `ref` (optional): Git ref to diff (e.g. `main..feature`, `HEAD~3`) or a GitHub PR URL (e.g. `https://github.com/owner/repo/pull/123`). Defaults to working tree changes.
 
 ## Instructions
 
