@@ -89,6 +89,25 @@ Reads all open comments and makes the requested code changes. Works with both yo
 
 A typical workflow: run `/diffity-review` to get AI feedback, check the comments in the browser, then run `/diffity-resolve` to apply the fixes.
 
+## GitHub PRs
+
+Pass a GitHub PR URL to view and review pull requests locally:
+
+```bash
+diffity https://github.com/owner/repo/pull/123
+```
+
+This checks out the PR, opens the diff against its base branch, and lets you leave comments in the viewer. Requires the [`gh` CLI](https://cli.github.com/) installed and authenticated (`gh auth login`), and the current repo must match the PR's repository.
+
+You can push your comments (including AI review comments) back to GitHub as PR review comments, and pull existing GitHub comments into the viewer. Both are available from the viewer UI.
+
+The skills work with PR URLs too:
+
+```
+/diffity-diff https://github.com/owner/repo/pull/123
+/diffity-review https://github.com/owner/repo/pull/123
+```
+
 ## Multiple projects
 
 Diffity supports running multiple projects simultaneously. Each gets its own port automatically:
