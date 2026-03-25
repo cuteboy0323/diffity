@@ -1,4 +1,6 @@
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 export interface TreeEntry {
   type: 'blob' | 'tree';
@@ -6,29 +8,85 @@ export interface TreeEntry {
   name: string;
 }
 
-export function getTree(ref = 'HEAD'): string[] {
-  const output = execFileSync('git', ['ls-tree', '-r', '--name-only', ref], {
+function getWorkingTreeFiles(dirPath?: string): string[] {
+  const pathArgs = dirPath ? [dirPath + '/'] : [];
+
+  const tracked = execFileSync('git', ['ls-files', ...pathArgs], {
     encoding: 'utf-8',
   }).trim();
-  if (!output) {
-    return [];
+
+  const deleted = execFileSync('git', ['ls-files', '--deleted', ...pathArgs], {
+    encoding: 'utf-8',
+  }).trim();
+
+  const untracked = execFileSync(
+    'git',
+    ['ls-files', '--others', '--exclude-standard', ...pathArgs],
+    { encoding: 'utf-8' },
+  ).trim();
+
+  const deletedSet = new Set(deleted ? deleted.split('\n') : []);
+  const files = new Set<string>();
+
+  if (tracked) {
+    for (const f of tracked.split('\n')) {
+      if (!deletedSet.has(f)) {
+        files.add(f);
+      }
+    }
   }
-  return output.split('\n');
+  if (untracked) {
+    for (const f of untracked.split('\n')) {
+      files.add(f);
+    }
+  }
+
+  return Array.from(files).sort();
 }
 
-export function getTreeEntries(ref = 'HEAD', dirPath?: string): TreeEntry[] {
-  const target = dirPath ? `${ref}:${dirPath}` : ref;
-  const raw = execFileSync('git', ['ls-tree', target], {
-    encoding: 'utf-8',
-  }).trim();
-  if (!raw) {
-    return [];
+export function getTree(): string[] {
+  return getWorkingTreeFiles();
+}
+
+export function getTreeEntries(_ref = 'HEAD', dirPath?: string): TreeEntry[] {
+  const files = getWorkingTreeFiles(dirPath);
+  const prefix = dirPath ? dirPath + '/' : '';
+  const entries = new Map<string, TreeEntry>();
+
+  for (const file of files) {
+    const relative = file.slice(prefix.length);
+    const slashIndex = relative.indexOf('/');
+    if (slashIndex === -1) {
+      entries.set(relative, { type: 'blob', path: file, name: relative });
+    } else {
+      const dirName = relative.slice(0, slashIndex);
+      const fullPath = prefix + dirName;
+      if (!entries.has(dirName)) {
+        entries.set(dirName, { type: 'tree', path: fullPath, name: dirName });
+      }
+    }
   }
 
-  return raw.split('\n').map(line => {
-    const [info, name] = line.split('\t');
-    const type = info.split(/\s+/)[1] as 'blob' | 'tree';
-    const fullPath = dirPath ? `${dirPath}/${name}` : name;
-    return { type, path: fullPath, name };
-  });
+  return Array.from(entries.values());
+}
+
+export function getTreeFingerprint(): string {
+  const tracked = execFileSync('git', ['ls-files'], {
+    encoding: 'utf-8',
+  }).trim();
+
+  const statOutput = execFileSync(
+    'git',
+    ['status', '--porcelain', '-u'],
+    { encoding: 'utf-8' },
+  ).trim();
+
+  return `${tracked.length}:${statOutput}`;
+}
+
+export function getWorkingTreeFileContent(filePath: string): string {
+  const root = execFileSync('git', ['rev-parse', '--show-toplevel'], {
+    encoding: 'utf-8',
+  }).trim();
+  return readFileSync(join(root, filePath), 'utf-8');
 }

@@ -1,5 +1,5 @@
 import type { DiffFile, DiffHunk } from '@diffity/parser';
-import type { CommentSide } from '../types/comment';
+import type { CommentSide } from '../components/comments/types';
 
 export type ViewMode = 'unified' | 'split';
 

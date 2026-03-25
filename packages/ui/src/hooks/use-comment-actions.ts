@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { CommentAuthor, CommentSide } from '../types/comment';
+import type { CommentAuthor, CommentSide } from '../components/comments/types';
 import * as api from '../lib/api';
 
 export function useCommentActions(sessionId: string | null, enabled: boolean) {

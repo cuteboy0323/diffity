@@ -7,9 +7,9 @@
     "diffity": "./dist/index.js"
   },
   "scripts": {
-    "build": "node build.js",
+    "build": "tsx build.ts",
     "dev": "tsx src/index.ts",
-    "dev:watch": "node build.js --watch"
+    "dev:watch": "tsx build.ts --watch"
   },
   "dependencies": {
     "better-sqlite3": "^12.8.0",

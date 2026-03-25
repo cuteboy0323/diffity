@@ -1,5 +1,5 @@
 import type { ParsedDiff } from '@diffity/parser';
-import type { CommentThread, CommentAuthor, CommentSide, Comment } from '../types/comment';
+import type { CommentThread, CommentAuthor, CommentSide, Comment } from '../components/comments/types';
 
 async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init);
@@ -259,4 +259,16 @@ export function fetchTreeEntries(dirPath?: string): Promise<{ entries: TreeEntry
 
 export function fetchTreeInfo(): Promise<RepoInfo> {
   return apiFetch('/api/tree/info');
+}
+
+export async function fetchTreeFingerprint(): Promise<string> {
+  const json = await apiFetch<{ fingerprint: string }>('/api/tree/fingerprint');
+  return json.fingerprint;
+}
+
+export async function fetchTreeFileContent(filePath: string): Promise<string[]> {
+  const json = await apiFetch<{ content: string[] }>(
+    `/api/tree/file/${encodeURIComponent(filePath)}`,
+  );
+  return json.content;
 }

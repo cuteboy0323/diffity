@@ -1,7 +1,7 @@
 import { Toaster } from 'sonner';
 import { useSearchParams } from './hooks/use-search-params';
-import { DiffPage } from './components/diff-page';
-import { TreePage } from './components/tree-page';
+import { DiffPage } from './components/diff/diff-page';
+import { TreePage } from './components/tree/tree-page';
 
 export function App() {
   const { ref, theme, view, mode } = useSearchParams();

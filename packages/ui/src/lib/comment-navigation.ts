@@ -1,5 +1,5 @@
-import type { CommentSide, CommentThread } from '../types/comment';
-import { GENERAL_THREAD_FILE_PATH, isThreadResolved } from '../types/comment';
+import type { CommentSide, CommentThread } from '../components/comments/types';
+import { GENERAL_THREAD_FILE_PATH, isThreadResolved } from '../components/comments/types';
 
 export function getUnresolvedFileThreads(threads: CommentThread[]): CommentThread[] {
   return threads.filter(

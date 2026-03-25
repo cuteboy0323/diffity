@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import type { CommentThread } from '../types/comment';
+import type { CommentThread } from '../components/comments/types';
 import { getUnresolvedFileThreads } from '../lib/comment-navigation';
 
 export function useThreadNavigation(threads: CommentThread[], onScrollToThread: (threadId: string, filePath: string) => void) {

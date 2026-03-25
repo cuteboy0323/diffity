@@ -1,5 +1,5 @@
 import type { DiffLine } from '@diffity/parser';
-import { WordDiff } from '../components/word-diff';
+import { WordDiff } from '../components/diff/word-diff';
 import type { SyntaxToken } from '../lib/syntax-token';
 
 export function renderContent(line: DiffLine, syntaxTokens?: SyntaxToken[]) {

@@ -31,6 +31,8 @@ import {
   isDirty,
   getTree,
   getTreeEntries,
+  getTreeFingerprint,
+  getWorkingTreeFileContent,
   WORKING_TREE_REFS,
 } from '@diffity/git';
 import {
@@ -445,6 +447,16 @@ export function startServer(options: ServerOptions): Promise<ServerResult> {
           return;
         }
 
+        if (pathname === '/api/tree/fingerprint') {
+          const raw = getTreeFingerprint();
+          const hash = createHash('sha1')
+            .update(raw)
+            .digest('hex')
+            .slice(0, 12);
+          sendJson(res, { fingerprint: hash });
+          return;
+        }
+
         if (pathname === '/api/tree') {
           try {
             const paths = getTree();
@@ -462,6 +474,19 @@ export function startServer(options: ServerOptions): Promise<ServerResult> {
             sendJson(res, { entries });
           } catch (err) {
             sendError(res, 500, `Failed to get tree entries: ${err}`);
+          }
+          return;
+        }
+
+        if (pathname.startsWith('/api/tree/file/')) {
+          const filePath = decodeURIComponent(
+            pathname.slice('/api/tree/file/'.length),
+          );
+          try {
+            const content = getWorkingTreeFileContent(filePath);
+            sendJson(res, { path: filePath, content: content.split('\n') });
+          } catch {
+            sendError(res, 404, `File not found: ${filePath}`);
           }
           return;
         }
