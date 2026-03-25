@@ -13,9 +13,11 @@ export async function clientLoader({ params }: Route.ClientLoaderArgs) {
     queryClient.ensureQueryData(treeInfoOptions()),
   ]);
 
-  const step = tour.steps[stepIndex];
-  if (step) {
-    await queryClient.ensureQueryData(treeFileContentOptions(step.filePath));
+  if (stepIndex > 0) {
+    const step = tour.steps[stepIndex - 1];
+    if (step) {
+      await queryClient.ensureQueryData(treeFileContentOptions(step.filePath));
+    }
   }
 
   return { tourId, stepIndex };

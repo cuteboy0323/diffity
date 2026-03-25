@@ -249,10 +249,10 @@ export function TreePage(props: TreePageProps) {
   }, [navigate]);
 
   const tourHighlight = useMemo(() => {
-    if (!tourData) {
+    if (!tourData || tourStepIndex === 0) {
       return null;
     }
-    const step = tourData.steps[tourStepIndex];
+    const step = tourData.steps[tourStepIndex - 1];
     if (!step) {
       return null;
     }
@@ -266,10 +266,10 @@ export function TreePage(props: TreePageProps) {
   }, [tourData, tourStepIndex, tourScrollTick]);
 
   useEffect(() => {
-    if (!tourData || tourData.steps.length === 0) {
+    if (!tourData || tourData.steps.length === 0 || tourStepIndex === 0) {
       return;
     }
-    const step = tourData.steps[tourStepIndex];
+    const step = tourData.steps[tourStepIndex - 1];
     if (step) {
       setInternalNav({ path: step.filePath, type: 'file' });
       setPreviewMode('preview');

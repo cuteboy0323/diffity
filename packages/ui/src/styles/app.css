@@ -111,6 +111,13 @@ dialog {
   background: var(--color-text-muted);
 }
 
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes slide-down {
   from {
     transform: translateY(-100%);

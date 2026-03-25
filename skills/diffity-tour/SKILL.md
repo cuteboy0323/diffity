@@ -31,7 +31,7 @@ diffity list --json
 
 1. Check that `diffity` is available: run `which diffity`. If not found, install it with `npm install -g diffity`.
 2. Ensure a tree instance is running: run `diffity list --json`.
-   - If no instance is running, start one: run `diffity tree` using the Bash tool with `run_in_background: true`, wait 2 seconds, then run `diffity list --json` to get the port.
+   - If no instance is running, start one: run `diffity tree --no-open` using the Bash tool with `run_in_background: true`, wait 2 seconds, then run `diffity list --json` to get the port.
 
 ## Instructions
 
@@ -41,7 +41,7 @@ Before creating any tour steps, you must deeply understand the answer to the use
 
 1. Read the relevant source files thoroughly. Follow the code path from entry point to completion.
 2. Identify the key locations that tell the story — the files and line ranges that someone needs to see to understand the answer.
-3. Plan a logical sequence of 5–10 steps that builds understanding progressively. Each step should lead naturally to the next.
+3. Plan a logical sequence of steps that builds understanding progressively. Each step should lead naturally to the next. Let the complexity of the topic determine the number of steps — a focused question might need 3, a system-wide flow might need 15+.
 
 **Guidelines for choosing steps:**
 - Start where the flow begins (entry point, config, initialization)
@@ -53,25 +53,21 @@ Before creating any tour steps, you must deeply understand the answer to the use
 
 ### Phase 2: Create the tour
 
+The tour UI has a dedicated explanation panel. The intro (from `tour-start --body`) is displayed as **step 0** — the first thing the reader sees, filling the full panel. Each subsequent step shows its narrative in the same panel alongside the highlighted code. Since the panel has generous space, write rich, detailed explanations.
+
 1. **Start the tour** with a topic and introductory body:
    ```
    diffity agent tour-start --topic "<user's question>" --body "<intro>" --json
    ```
 
-   **Writing the intro body:**
-   The intro should be a high-level architectural overview — not a summary of what the tour covers. Explain the key components involved and how they interact. Use markdown. Example:
+   **Writing the intro body (step 0):**
+   This is the first thing the reader sees and it fills the entire explanation panel. Use this space for a thorough architectural overview that sets up everything the reader needs before diving into code. Include:
+   - The key components/packages/modules involved and their responsibilities
+   - How they connect — data flow, call chains, or dependency relationships
+   - Key abstractions or patterns the reader should know about
+   - A summary flow diagram using bold text (e.g. **CLI args → git diff → parser → JSON API → React render**)
 
-   ```markdown
-   The diff system has three layers:
-
-   **CLI** (`packages/cli`) — parses user arguments, starts an HTTP server, and constructs git commands. It translates human-readable refs like `main` or `HEAD~1` into merge-base computations.
-
-   **Git package** (`packages/git`) — executes git commands and returns raw diff output. It handles special refs (`staged`, `work`, `untracked`) with different git invocations.
-
-   **UI** (`packages/ui`) — fetches the parsed diff via `/api/diff`, caches it with React Query, and renders the split/unified view. Route loaders prefetch data before the page renders.
-
-   The flow is: **CLI args → git diff → parser → JSON API → React Query → rendered component**
-   ```
+   Use rich markdown formatting — paragraphs, bold, `code`, tables, code blocks. This is not a table of contents of what the tour will cover; it's a standalone overview that orients the reader.
 
    Extract the tour ID from the JSON output.
 
@@ -80,21 +76,22 @@ Before creating any tour steps, you must deeply understand the answer to the use
    diffity agent tour-step --tour <id> --file <path> --line <start> --end-line <end> --body "<narrative>" --annotation "<short label>" --json
    ```
 
-   **Writing good step content (body supports markdown):**
+   **Writing step content:**
 
    - `--file`: Path relative to repo root (e.g. `src/server.ts`)
-   - `--line` / `--end-line`: The exact line range to highlight. Keep it focused — 3 to 20 lines.
-   - `--annotation`: A short label (3-6 words) shown above the highlighted code. Think of it as a chapter title.
-   - `--body`: The narrative shown in the tour sidebar. This is the core educational content. **Use markdown formatting:**
+   - `--line` / `--end-line`: The exact line range to highlight. Keep it focused on the relevant section.
+   - `--annotation`: A short label (3-6 words) shown as the step title. Think of it as a chapter heading.
+   - `--body`: The narrative shown in the explanation panel. This has generous space — use it to write thorough explanations using markdown:
 
    **Do:**
+   - Write in prose paragraphs, supplemented by structured content where it helps
    - Use `code` for function names, variables, refs, commands
    - Use **bold** for key concepts being introduced
+   - Explain *why* the code exists and the design decisions behind it, not just what it does
    - Use concrete examples: "When you run `diffity main`, this line calls `normalizeRef('main')` which computes `git merge-base main HEAD`"
    - Use tables for mappings (input → output, ref → git command)
    - Use code blocks for data structures or command outputs
-   - Mix prose with structured content — don't rely solely on bullet lists
-   - Explain *why* the code exists, not just what it does
+   - Connect each step to the bigger picture from the intro
 
    **Don't:**
    - Write a wall of bullet points — use prose paragraphs with formatting
@@ -113,20 +110,12 @@ Before creating any tour steps, you must deeply understand the answer to the use
 2. Open the tour: `open "http://localhost:<port>/tour/<tour-id>"` (or the appropriate command for the user's OS).
 3. Tell the user the tour is ready:
 
-   > Your tour is ready! Open http://localhost:<port>/tour/<tour-id>
-   >
-   > Use the numbered steps at the top of the panel to navigate. The narrative for each step appears below.
+   > Your tour is ready — check your browser.
 
 ## Quality Checklist
 
-Before finishing, verify your tour meets these standards:
+Before finishing, verify:
 
-- [ ] Intro body gives a high-level architectural overview, not a table of contents
+- [ ] Intro (step 0) gives a thorough architectural overview, not a table of contents
 - [ ] Steps follow the actual execution/data flow, not alphabetical file order
-- [ ] Each step's body uses markdown — code, bold, tables, examples — not just plain text
-- [ ] Each step explains *why* with concrete examples, not just *what*
-- [ ] Each annotation is a concise label (3-6 words, not a full sentence)
-- [ ] Line ranges are precise — highlight the relevant section, not the entire file
-- [ ] 5–10 steps total (enough to tell the full story)
 - [ ] No two consecutive steps highlight the same lines in the same file
-- [ ] Prose paragraphs are the primary format, bullet lists are secondary

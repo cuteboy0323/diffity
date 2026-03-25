@@ -34,6 +34,8 @@ program
   .name('diffity')
   .description('GitHub-style git diff viewer in the browser')
   .version(pkg.version)
+  .enablePositionalOptions()
+  .passThroughOptions()
   .option('--skills-hash', 'Print skills hash and exit', false)
   .argument('[refs...]', 'Git refs to diff')
   .option('--base <ref>', 'Base ref to compare from (e.g. main, HEAD~3, v1.0.0)')
