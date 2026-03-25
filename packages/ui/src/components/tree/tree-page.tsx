@@ -350,14 +350,14 @@ export function TreePage(props: TreePageProps) {
             pathKey={pathKey}
             threads={pathThreads}
             commentActions={commentActions}
-            label={navPath ? navPath.split('/').pop()! : info?.name ?? 'root'}
+            label={navPath ? navPath.split('/').pop()! : info.name ?? 'root'}
             focusedThreadId={focusedThreadId}
           >
             <button
               className={breadcrumbs.length > 0 ? 'text-accent hover:underline cursor-pointer' : 'text-text font-medium'}
               onClick={() => handleDirClick('')}
             >
-              {info?.name ?? 'root'}
+              {info.name ?? 'root'}
             </button>
             {breadcrumbs.map(crumb => (
               <span key={crumb.path} className="flex items-center gap-1">

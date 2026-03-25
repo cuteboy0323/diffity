@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import type { Tour } from '../../lib/api';
 import { CompassIcon } from '../icons/compass-icon';
 import { XIcon } from '../icons/x-icon';
@@ -9,6 +11,39 @@ interface TourPanelProps {
   currentStepIndex: number;
   onStepChange: (index: number) => void;
   onClose: () => void;
+}
+
+function TourMarkdown(props: { content: string }) {
+  return (
+    <ReactMarkdown
+      remarkPlugins={[remarkGfm]}
+      components={{
+        p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+        strong: ({ children }) => <strong className="font-semibold text-text">{children}</strong>,
+        em: ({ children }) => <em className="text-text-secondary">{children}</em>,
+        code: ({ children }) => (
+          <code className="px-1 py-0.5 bg-bg-tertiary rounded text-[10px] font-mono text-accent">{children}</code>
+        ),
+        pre: ({ children }) => (
+          <pre className="my-2 p-2 bg-bg-tertiary rounded text-[10px] font-mono overflow-x-auto">{children}</pre>
+        ),
+        ul: ({ children }) => <ul className="mb-2 pl-4 space-y-1 list-disc">{children}</ul>,
+        ol: ({ children }) => <ol className="mb-2 pl-4 space-y-1 list-decimal">{children}</ol>,
+        li: ({ children }) => <li className="text-text">{children}</li>,
+        a: ({ href, children }) => (
+          <a href={href} className="text-accent hover:underline" target="_blank" rel="noopener noreferrer">{children}</a>
+        ),
+        h1: ({ children }) => <h3 className="font-semibold text-text mb-1">{children}</h3>,
+        h2: ({ children }) => <h3 className="font-semibold text-text mb-1">{children}</h3>,
+        h3: ({ children }) => <h3 className="font-semibold text-text mb-1">{children}</h3>,
+        blockquote: ({ children }) => (
+          <blockquote className="border-l-2 border-accent/30 pl-2 my-2 text-text-secondary">{children}</blockquote>
+        ),
+      }}
+    >
+      {props.content}
+    </ReactMarkdown>
+  );
 }
 
 export function TourPanel(props: TourPanelProps) {
@@ -42,7 +77,7 @@ export function TourPanel(props: TourPanelProps) {
   }
 
   return (
-    <aside className="w-80 min-w-80 border-l border-border bg-bg-secondary flex flex-col overflow-hidden">
+    <aside className="w-96 min-w-96 border-l border-border bg-bg-secondary flex flex-col overflow-hidden">
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-border">
         <span className="text-xs font-medium text-text-secondary flex items-center gap-2 uppercase tracking-wider">
           <CompassIcon className="w-3.5 h-3.5" />
@@ -69,7 +104,9 @@ export function TourPanel(props: TourPanelProps) {
       <div className="px-4 py-3 border-b border-border">
         <h2 className="text-sm font-semibold text-text leading-snug">{tour.topic}</h2>
         {tour.body && (
-          <p className="mt-1.5 text-xs text-text-secondary leading-relaxed">{tour.body}</p>
+          <div className="mt-1.5 text-xs text-text-secondary leading-relaxed">
+            <TourMarkdown content={tour.body} />
+          </div>
         )}
       </div>
 
@@ -108,7 +145,9 @@ export function TourPanel(props: TourPanelProps) {
 
               {isActive && (
                 <div className="pl-7">
-                  <p className="text-xs text-text leading-relaxed mb-1.5">{step.body}</p>
+                  <div className="text-xs text-text leading-relaxed mb-1.5">
+                    <TourMarkdown content={step.body} />
+                  </div>
                   <span className="inline-flex items-center gap-1 text-[10px] text-text-muted font-mono">
                     {step.filePath}:{lineRange}
                   </span>

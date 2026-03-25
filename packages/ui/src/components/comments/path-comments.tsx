@@ -12,7 +12,7 @@ interface PathCommentsProps {
   threads: CommentThreadType[];
   commentActions: CommentActions;
   label: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   focusedThreadId?: string | null;
 }
 
