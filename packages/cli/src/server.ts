@@ -69,6 +69,7 @@ interface ServerOptions {
   diffArgs: string[];
   description?: string;
   effectiveRef?: string;
+  version?: string;
   registryInfo?: {
     repoRoot: string;
     repoHash: string;
@@ -118,6 +119,7 @@ export function startServer(options: ServerOptions): Promise<ServerResult> {
     diffArgs,
     description,
     effectiveRef,
+    version,
     registryInfo,
   } = options;
 
@@ -561,6 +563,7 @@ export function startServer(options: ServerOptions): Promise<ServerResult> {
             ref: effectiveRef || 'work',
             description: description || 'Unstaged changes',
             startedAt: new Date().toISOString(),
+            version,
           });
         }
         resolve({ port: addr.port, close: closeFn });

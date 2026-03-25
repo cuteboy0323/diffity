@@ -11,6 +11,7 @@ export interface RegistryEntry {
   ref: string;
   description: string;
   startedAt: string;
+  version?: string;
 }
 
 const DIFFITY_DIR = join(homedir(), '.diffity');
@@ -138,6 +139,13 @@ export function findInstanceForRepo(repoHash: string): RegistryEntry | null {
     return null;
   }
   return match;
+}
+
+export function killInstance(entry: RegistryEntry): void {
+  try {
+    process.kill(entry.pid, 'SIGTERM');
+  } catch {}
+  deregisterInstance(entry.pid);
 }
 
 export function findAvailablePort(): number {

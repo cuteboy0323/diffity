@@ -8,6 +8,7 @@ import {
   deleteAllThreadsForSession,
   editComment,
   deleteComment,
+  type ThreadAuthor,
   type ThreadStatus,
 } from './threads.js';
 import { getCurrentSession } from './session.js';
@@ -54,7 +55,7 @@ export function handleReviewRoute(req: IncomingMessage, res: ServerResponse, pat
       }
       const thread = createThread(
         sid as string, filePath as string, side as string, startLine, endLine,
-        commentBody as string, author as { name: string; type: string },
+        commentBody as string, author as ThreadAuthor,
         anchorContent as string | undefined,
       );
       sendJson(res, thread);
@@ -70,7 +71,7 @@ export function handleReviewRoute(req: IncomingMessage, res: ServerResponse, pat
         sendError(res, 400, 'Missing body or author');
         return;
       }
-      const comment = addReply(threadReplyMatch[1], commentBody as string, author as { name: string; type: string });
+      const comment = addReply(threadReplyMatch[1], commentBody as string, author as ThreadAuthor);
       sendJson(res, comment);
     });
     return true;
@@ -85,7 +86,7 @@ export function handleReviewRoute(req: IncomingMessage, res: ServerResponse, pat
         return;
       }
       const summaryAuthor = summary ? { name: 'System', type: 'user' as const } : undefined;
-      updateThreadStatus(threadStatusMatch[1], status as string, summary as string | undefined, summaryAuthor);
+      updateThreadStatus(threadStatusMatch[1], status as ThreadStatus, summary as string | undefined, summaryAuthor);
       sendJson(res, { ok: true });
     });
     return true;

@@ -15,7 +15,7 @@ import {
 } from '@diffity/github';
 import { startServer } from './server.js';
 import { registerAgentCommands } from './agent.js';
-import { findInstanceForRepo, findAvailablePort, deregisterInstance } from './registry.js';
+import { findInstanceForRepo, findAvailablePort, deregisterInstance, killInstance } from './registry.js';
 import { registerOpenCommand } from './commands/open.js';
 import { registerListCommand } from './commands/list.js';
 import { registerPruneCommand } from './commands/prune.js';
@@ -188,12 +188,10 @@ range syntax (main..feature, main...feature) also work.`)
 
     const existing = findInstanceForRepo(repoHash);
     if (existing) {
-      if (opts.new) {
-        try {
-          process.kill(existing.pid, 'SIGTERM');
-        } catch {}
-        deregisterInstance(existing.pid);
-        if (!opts.quiet) {
+      const isStale = existing.version !== pkg.version;
+      if (opts.new || isStale) {
+        killInstance(existing);
+        if (!opts.quiet && !isStale) {
           console.log(pc.dim(`  Stopped existing instance (pid ${existing.pid})`));
         }
       } else {
@@ -232,6 +230,7 @@ range syntax (main..feature, main...feature) also work.`)
         diffArgs,
         description,
         effectiveRef,
+        version: pkg.version,
         registryInfo: { repoRoot, repoHash, repoName },
       });
       const urlParams = new URLSearchParams({ ref: effectiveRef });
@@ -282,7 +281,7 @@ registerListCommand(program);
 registerPruneCommand(program);
 registerUpdateCommand(program, pkg.version, SKILLS_HASH);
 registerDoctorCommand(program, pkg.version);
-registerTreeCommand(program);
+registerTreeCommand(program, pkg.version);
 registerAgentCommands(program);
 
 program.parse();

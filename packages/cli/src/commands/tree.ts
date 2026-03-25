@@ -4,9 +4,9 @@ import open from 'open';
 import pc from 'picocolors';
 import { isGitRepo, getRepoRoot, getRepoName } from '@diffity/git';
 import { startServer } from '../server.js';
-import { findInstanceForRepo, findAvailablePort, deregisterInstance } from '../registry.js';
+import { findInstanceForRepo, findAvailablePort, deregisterInstance, killInstance } from '../registry.js';
 
-export function registerTreeCommand(program: Command) {
+export function registerTreeCommand(program: Command, version: string) {
   program
     .command('tree')
     .description('Open a file browser view of the repository')
@@ -25,7 +25,7 @@ export function registerTreeCommand(program: Command) {
       const repoName = getRepoName();
 
       const existing = findInstanceForRepo(repoHash);
-      if (existing) {
+      if (existing && existing.version === version) {
         const urlParams = new URLSearchParams({ mode: 'tree' });
         if (opts.dark) {
           urlParams.set('theme', 'dark');
@@ -47,6 +47,10 @@ export function registerTreeCommand(program: Command) {
         return;
       }
 
+      if (existing) {
+        killInstance(existing);
+      }
+
       const explicitPort = !!opts.port;
       const port = explicitPort ? parseInt(opts.port, 10) : findAvailablePort();
 
@@ -57,6 +61,7 @@ export function registerTreeCommand(program: Command) {
           diffArgs: [],
           description: 'Repository file browser',
           effectiveRef: '__tree__',
+          version,
           registryInfo: { repoRoot, repoHash, repoName },
         });
 
