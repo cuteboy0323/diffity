@@ -1,7 +1,9 @@
+import { useRouteError, useNavigate } from "react-router";
 import type { Route } from "./+types/tree";
 import { queryClient } from "../lib/query-client";
 import { treePathsOptions, treeInfoOptions, treeFileContentOptions, treeEntriesOptions } from "../queries/tree";
 import { TreePage } from "../components/tree/tree-page";
+import { ErrorPage } from "../components/error-page";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
   const url = new URL(request.url);
@@ -27,4 +29,19 @@ export async function clientLoader({ request }: Route.ClientLoaderArgs) {
 
 export default function TreeRoute() {
   return <TreePage />;
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const navigate = useNavigate();
+
+  return (
+    <ErrorPage
+      error={error}
+      actions={[
+        { label: "View diff", primary: true, onClick: () => navigate("/diff") },
+        { label: "Browse root", onClick: () => navigate("/tree") },
+      ]}
+    />
+  );
 }

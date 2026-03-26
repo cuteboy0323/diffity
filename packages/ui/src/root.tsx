@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation } from "react-router";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration, useNavigation, useRouteError } from "react-router";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import NProgress from "nprogress";
 import { queryClient } from "./lib/query-client";
+import { ErrorPage } from "./components/error-page";
 import "nprogress/nprogress.css";
 import "./styles/app.css";
 
@@ -67,6 +68,20 @@ export default function App() {
         }}
       />
     </QueryClientProvider>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  return (
+    <ErrorPage
+      error={error}
+      actions={[
+        { label: "Reload page", primary: true, onClick: () => window.location.reload() },
+        { label: "Go to diff view", onClick: () => { window.location.href = "/diff"; } },
+      ]}
+    />
   );
 }
 
