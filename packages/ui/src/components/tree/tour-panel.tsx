@@ -195,7 +195,6 @@ export function TourPanel(props: TourPanelProps) {
       <div className="px-3 pt-2.5 pb-2 border-b border-border">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <CompassIcon className="w-3.5 h-3.5 text-text-muted shrink-0" />
             <span className="text-xs font-medium text-text truncate">{tour.topic}</span>
           </div>
           <div className="flex items-center gap-0.5 shrink-0">

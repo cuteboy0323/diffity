@@ -347,6 +347,7 @@ export function TreePage(props: TreePageProps) {
           commentCountsByFile={commentCountsByFile}
           onFileClick={handleFileClick}
           onDirClick={handleDirClick}
+          focusFileTick={isTourMode ? tourScrollTick : undefined}
         />
 
         <main ref={mainRef} className="flex-1 overflow-y-auto p-6">

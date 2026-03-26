@@ -21,6 +21,7 @@ interface TreeSidebarProps {
   commentCountsByFile: Map<string, number>;
   onFileClick: (path: string) => void;
   onDirClick: (path: string) => void;
+  focusFileTick?: number;
 }
 
 export const TreeSidebar = forwardRef<HTMLInputElement, TreeSidebarProps>(function TreeSidebar(props, ref) {
@@ -30,6 +31,7 @@ export const TreeSidebar = forwardRef<HTMLInputElement, TreeSidebarProps>(functi
     commentCountsByFile,
     onFileClick,
     onDirClick,
+    focusFileTick,
   } = props;
 
   const [search, setSearch] = useState('');
@@ -70,6 +72,19 @@ export const TreeSidebar = forwardRef<HTMLInputElement, TreeSidebarProps>(functi
       return next;
     });
   }, [activeFile, allDirPaths]);
+
+  // Collapse all and expand only to active file on focus tick
+  useEffect(() => {
+    if (!focusFileTick || !activeFile) {
+      return;
+    }
+    const parts = activeFile.split('/');
+    const next = new Set<string>();
+    for (let i = 1; i < parts.length; i++) {
+      next.add(parts.slice(0, i).join('/'));
+    }
+    setExpandedDirs(next);
+  }, [focusFileTick]);
 
   const effectiveExpanded = useMemo(() => {
     if (search || effectiveCommentedOnly) {
