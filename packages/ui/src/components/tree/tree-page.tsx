@@ -244,6 +244,10 @@ export function TreePage(props: TreePageProps) {
     navigate(`/tour/${tourId}/${index}`);
   }, [tourId, navigate]);
 
+  const handleTourScrollToHighlight = useCallback(() => {
+    setTourScrollTick(t => t + 1);
+  }, []);
+
   const handleTourClose = useCallback(() => {
     navigate('/tree');
   }, [navigate]);
@@ -436,6 +440,9 @@ export function TreePage(props: TreePageProps) {
             currentStepIndex={tourStepIndex}
             onStepChange={handleTourStepChange}
             onClose={handleTourClose}
+            onNavigateToFile={handleFileClick}
+            onScrollToHighlight={handleTourScrollToHighlight}
+            filePaths={paths}
           />
         )}
       </div>

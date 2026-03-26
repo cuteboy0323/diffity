@@ -55,10 +55,12 @@ Before creating any tour steps, you must deeply understand the answer to the use
 
 The tour UI has a dedicated explanation panel. The intro (from `tour-start --body`) is displayed as **step 0** — the first thing the reader sees, filling the full panel. Each subsequent step shows its narrative in the same panel alongside the highlighted code. Since the panel has generous space, write rich, detailed explanations.
 
-1. **Start the tour** with a topic and introductory body:
+1. **Start the tour** with a short topic title and introductory body:
    ```
-   diffity agent tour-start --topic "<user's question>" --body "<intro>" --json
+   diffity agent tour-start --topic "<short title>" --body "<intro>" --json
    ```
+
+   The `--topic` is displayed in the tour panel header — keep it to **3–6 words** (e.g. "Authentication Flow", "How Routing Works", "Comment System Architecture"). Do NOT use the user's full question as the topic.
 
    **Writing the intro body (step 0):**
    This is the first thing the reader sees and it fills the entire explanation panel. Use this space for a thorough architectural overview that sets up everything the reader needs before diving into code. Include:

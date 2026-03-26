@@ -44,6 +44,9 @@ export function FileViewer(props: FileViewerProps) {
   const tableRef = useRef<HTMLTableElement>(null);
 
   const activeTourHighlight = tourHighlight && tourHighlight.filePath === filePath ? tourHighlight : null;
+  const isFullFileHighlight = activeTourHighlight
+    && activeTourHighlight.startLine <= 1
+    && activeTourHighlight.endLine >= content.length;
 
   useEffect(() => {
     if (!activeTourHighlight) {
@@ -112,7 +115,7 @@ export function FileViewer(props: FileViewerProps) {
   }, [fileThreads]);
 
   const isLineSelected = useCallback((lineNum: number) => {
-    if (activeTourHighlight && lineNum >= activeTourHighlight.startLine && lineNum <= activeTourHighlight.endLine) {
+    if (activeTourHighlight && !isFullFileHighlight && lineNum >= activeTourHighlight.startLine && lineNum <= activeTourHighlight.endLine) {
       return true;
     }
     if (isLineInSelection(lineNum, 'new')) {
@@ -129,7 +132,7 @@ export function FileViewer(props: FileViewerProps) {
       }
     }
     return false;
-  }, [isLineInSelection, pendingSelection, filePath, fileThreads, activeTourHighlight]);
+  }, [isLineInSelection, pendingSelection, filePath, fileThreads, activeTourHighlight, isFullFileHighlight]);
 
   const handleAddThread = useCallback((body: string) => {
     if (!pendingSelection || !sessionId) {
@@ -257,7 +260,10 @@ export function FileViewer(props: FileViewerProps) {
   }
 
   return (
-    <div className="border border-border rounded-lg overflow-x-auto">
+    <div className={cn(
+      'border border-border rounded-lg overflow-x-auto',
+      isFullFileHighlight && 'border-l-2 border-l-accent',
+    )}>
       <table ref={tableRef} className="w-full border-collapse">
         <tbody>
           {rows}
