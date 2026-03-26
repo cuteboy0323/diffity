@@ -102,8 +102,6 @@ function descriptionForRef(ref: string): string {
     const labels: Record<string, string> = {
       staged: 'Staged changes',
       unstaged: 'Unstaged changes',
-      working: 'Working tree changes',
-      untracked: 'Untracked files',
       work: 'All changes',
       '.': 'All changes',
     };
@@ -277,11 +275,7 @@ export function startServer(options: ServerOptions): Promise<ServerResult> {
           const resolved = ref ? resolveDiffArgs(ref) : null;
 
           if (resolved) {
-            if (resolved.type === 'untracked-only') {
-              sendJson(res, { args: null });
-            } else {
-              sendJson(res, { args: resolved.args.join(' ') });
-            }
+            sendJson(res, { args: resolved.args.join(' ') });
           } else {
             const args = diffArgs.length > 0 ? diffArgs : ['HEAD'];
             sendJson(res, { args: args.join(' ') });

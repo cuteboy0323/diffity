@@ -26,9 +26,7 @@ export function getUntrackedDiff(files: string[]): string {
   return diffs.join('\n');
 }
 
-export type RefDiffArgs =
-  | { type: 'args'; args: string[]; includeUntracked: boolean }
-  | { type: 'untracked-only' };
+export type RefDiffArgs = { type: 'args'; args: string[]; includeUntracked: boolean };
 
 export function resolveDiffArgs(ref: string): RefDiffArgs {
   switch (ref) {
@@ -36,10 +34,6 @@ export function resolveDiffArgs(ref: string): RefDiffArgs {
       return { type: 'args', args: ['--staged'], includeUntracked: false };
     case 'unstaged':
       return { type: 'args', args: [], includeUntracked: false };
-    case 'working':
-      return { type: 'args', args: ['HEAD'], includeUntracked: false };
-    case 'untracked':
-      return { type: 'untracked-only' };
     case '.':
     case 'work':
       return { type: 'args', args: ['HEAD'], includeUntracked: true };
@@ -50,11 +44,6 @@ export function resolveDiffArgs(ref: string): RefDiffArgs {
 
 export function resolveRef(ref: string, extraArgs: string[] = []): string {
   const resolved = resolveDiffArgs(ref);
-
-  if (resolved.type === 'untracked-only') {
-    const files = getUntrackedFiles();
-    return files.length === 0 ? '' : getUntrackedDiff(files);
-  }
 
   let raw = getDiff([...resolved.args, ...extraArgs]);
   if (resolved.includeUntracked) {
@@ -68,10 +57,6 @@ export function resolveRef(ref: string, extraArgs: string[] = []): string {
 
 export function getDiffFiles(ref: string): string[] {
   const resolved = resolveDiffArgs(ref);
-
-  if (resolved.type === 'untracked-only') {
-    return getUntrackedFiles();
-  }
 
   const tracked = execLines(`git diff --name-only ${resolved.args.join(' ')}`.trim());
   if (resolved.includeUntracked) {
@@ -92,10 +77,6 @@ export function getDiffStat(args: string[] = []): string {
 
 export function getDiffStatForRef(ref: string): string {
   const resolved = resolveDiffArgs(ref);
-
-  if (resolved.type === 'untracked-only') {
-    return getUntrackedFiles().join('\n');
-  }
 
   let stat = getDiffStat(resolved.args);
   if (resolved.includeUntracked) {
@@ -134,7 +115,7 @@ export function normalizeRef(ref: string): string {
   return getMergeBase(ref, 'HEAD');
 }
 
-export const WORKING_TREE_REFS = new Set(['work', '.', 'staged', 'unstaged', 'working', 'untracked']);
+export const WORKING_TREE_REFS = new Set(['work', '.', 'staged', 'unstaged']);
 
 export function resolveBaseRef(ref: string): string {
   if (WORKING_TREE_REFS.has(ref)) {

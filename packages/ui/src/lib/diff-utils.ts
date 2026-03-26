@@ -3,7 +3,7 @@ import type { CommentSide } from '../components/comments/types';
 
 export type ViewMode = 'unified' | 'split';
 
-const WORKING_TREE_REFS = new Set(['work', 'staged', 'unstaged', 'working', 'untracked']);
+const WORKING_TREE_REFS = new Set(['work', 'staged', 'unstaged']);
 
 export function isWorkingTreeRef(ref?: string): boolean {
   return !!ref && WORKING_TREE_REFS.has(ref);

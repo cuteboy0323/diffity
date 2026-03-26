@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 import open from 'open';
 import pc from 'picocolors';
-import { isGitRepo, isValidGitRef, getRepoRoot, getRepoName, normalizeRef } from '@diffity/git';
+import { isGitRepo, isValidGitRef, getRepoRoot, getRepoName, normalizeRef, WORKING_TREE_REFS } from '@diffity/git';
 import {
   isGitHubPrUrl,
   parseGitHubPrUrl,
@@ -54,6 +54,8 @@ Common usage:
   $ diffity main..feature                Compare two branches
   $ diffity --base main --compare feature   Same as above
   $ diffity v1.0.0 v2.0.0               Compare two tags
+  $ diffity staged                       Only staged changes
+  $ diffity unstaged                     Only unstaged changes
   $ diffity https://github.com/owner/repo/pull/123   Review a GitHub PR
   $ diffity --dark --unified             Dark mode, unified view
   $ diffity --new                        Force restart existing instance
@@ -161,6 +163,9 @@ range syntax (main..feature, main...feature) also work.`)
     }
 
     for (const ref of refs) {
+      if (WORKING_TREE_REFS.has(ref)) {
+        continue;
+      }
       if (!isValidGitRef(ref)) {
         console.error(pc.red(`Error: '${ref}' is not a valid git reference.`));
         console.log('');
@@ -170,6 +175,7 @@ range syntax (main..feature, main...feature) also work.`)
         console.log(`  ${pc.cyan('diffity HEAD~1')}                       Review your last commit`);
         console.log(`  ${pc.cyan('diffity main..feature')}                Compare two branches`);
         console.log(`  ${pc.cyan('diffity --base main --compare feature')}   Compare two branches`);
+        console.log(`  ${pc.cyan('diffity staged')}                       Only staged changes`);
         console.log(`  ${pc.cyan('diffity tree')}                         Browse repository files`);
         console.log('');
         console.log(`Run ${pc.cyan('diffity --help')} for more options.`);
@@ -182,8 +188,12 @@ range syntax (main..feature, main...feature) also work.`)
 
     if (refs.length === 1) {
       const ref = refs[0];
-      diffArgs.push(normalizeRef(ref));
-      description = ref.includes('..') ? ref : `Changes from ${ref}`;
+      if (WORKING_TREE_REFS.has(ref)) {
+        description = `${ref.charAt(0).toUpperCase() + ref.slice(1)} changes`;
+      } else {
+        diffArgs.push(normalizeRef(ref));
+        description = ref.includes('..') ? ref : `Changes from ${ref}`;
+      }
     } else if (refs.length === 2) {
       diffArgs.push(normalizeRef(`${refs[0]}..${refs[1]}`));
       description = `${refs[0]}..${refs[1]}`;

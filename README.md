@@ -44,6 +44,11 @@ diffity v1.0.0                             # what changed since v1.0.0
 # specific commits
 diffity abc1234                            # changes since a specific commit
 diffity abc1234..def5678                   # changes between two commits
+
+# filter by change type
+diffity work                               # all changes (staged + unstaged + untracked)
+diffity staged                             # only staged changes (git add'd)
+diffity unstaged                           # only unstaged modifications
 ```
 
 The `--base`/`--compare` flags use the same terminology as GitHub PRs — base is what you're comparing against, compare is the branch with changes. You can also use range syntax (`main..feature`) or just pass two positional args (`diffity main feature`).
