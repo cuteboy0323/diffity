@@ -28,6 +28,9 @@ import { ThreadBadge } from '../ui/thread-badge';
 import { buildExpansionSyntaxMap, renderExpansionRows } from './render-expansion-rows';
 import { ExpandRow } from './expand-row';
 import { RichDiffViewer } from './rich-diff-viewer';
+import { SegmentedToggle } from '../ui/segmented-toggle';
+import { CodeIcon } from '../icons/code-icon';
+import { FileIcon } from '../icons/file-icon';
 import { isRenderableFile } from '../../lib/file-types';
 
 export const LARGE_DIFF_LINE_THRESHOLD = 200;
@@ -436,12 +439,14 @@ export function FileBlock(props: FileBlockProps) {
             </span>
           )}
           {renderable && (
-            <button
-              className="text-[11px] text-text-muted hover:text-accent transition-colors cursor-pointer font-medium"
-              onClick={() => setShowRichDiff(prev => !prev)}
-            >
-              {showRichDiff ? 'Show source' : 'Show rendered'}
-            </button>
+            <SegmentedToggle
+              options={[
+                { value: 'source', label: 'Source', icon: <CodeIcon className="w-3 h-3" /> },
+                { value: 'rendered', label: 'Rendered', icon: <FileIcon className="w-3 h-3" /> },
+              ]}
+              value={showRichDiff ? 'rendered' : 'source'}
+              onChange={(v) => setShowRichDiff(v === 'rendered')}
+            />
           )}
           <div className="flex items-center gap-1.5">
             <DiffStats additions={file.additions} deletions={file.deletions} />

@@ -21,6 +21,7 @@ import { useTreeStaleness } from '../../hooks/use-tree-staleness';
 import { isRenderableFile, isMarkdownFile } from '../../lib/file-types';
 import { CodeIcon } from '../icons/code-icon';
 import { FileIcon } from '../icons/file-icon';
+import { SegmentedToggle } from '../ui/segmented-toggle';
 import { TourPanel } from './tour-panel';
 
 interface TreePageProps {
@@ -380,22 +381,14 @@ export function TreePage(props: TreePageProps) {
               </span>
             ))}
             {isFileMode && fileContent && isRenderableFile(navPath) && (
-              <div className="flex items-center ml-2 border border-border rounded-md overflow-hidden text-xs">
-                <button
-                  className={`flex items-center gap-1 px-2 py-1 transition-colors cursor-pointer ${previewMode === 'code' ? 'bg-bg-tertiary text-text' : 'text-text-muted hover:text-text'}`}
-                  onClick={() => setPreviewMode('code')}
-                >
-                  <CodeIcon className="w-3 h-3" />
-                  Code
-                </button>
-                <button
-                  className={`flex items-center gap-1 px-2 py-1 transition-colors cursor-pointer ${previewMode === 'preview' ? 'bg-bg-tertiary text-text' : 'text-text-muted hover:text-text'}`}
-                  onClick={() => setPreviewMode('preview')}
-                >
-                  <FileIcon className="w-3 h-3" />
-                  Preview
-                </button>
-              </div>
+              <SegmentedToggle
+                options={[
+                  { value: 'code', label: 'Code', icon: <CodeIcon className="w-3 h-3" /> },
+                  { value: 'preview', label: 'Preview', icon: <FileIcon className="w-3 h-3" /> },
+                ]}
+                value={previewMode}
+                onChange={setPreviewMode}
+              />
             )}
           </PathComments>
 

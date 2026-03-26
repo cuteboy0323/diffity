@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { ParsedDiff } from '@diffity/parser';
-import { cn } from '../../lib/cn';
 import { getFilePath } from '../../lib/diff-utils';
 import { UnifiedViewIcon } from '../icons/unified-view-icon';
 import { SplitViewIcon } from '../icons/split-view-icon';
+import { SegmentedToggle } from '../ui/segmented-toggle';
 import { EyeIcon } from '../icons/eye-icon';
 import { EyeOffIcon } from '../icons/eye-off-icon';
 import { KeyboardIcon } from '../icons/keyboard-icon';
@@ -138,9 +138,10 @@ export function Toolbar(props: ToolbarProps) {
     return formatThreadsForCopy(threads, diff, diffRef);
   }, [threads, diff, diffRef]);
 
-  const baseBtn = 'px-2.5 py-1 text-xs text-text-secondary transition-colors duration-150 cursor-pointer';
-  const activeBtn = 'bg-accent text-white';
-  const inactiveBtn = 'bg-bg-tertiary hover:bg-hover hover:text-text';
+  const viewModeOptions = useMemo(() => [
+    { value: 'unified' as ViewMode, label: 'Unified', icon: <UnifiedViewIcon className="w-3.5 h-3.5" /> },
+    { value: 'split' as ViewMode, label: 'Split', icon: <SplitViewIcon className="w-3.5 h-3.5" /> },
+  ], []);
 
   return (
     <div className="flex items-center gap-3 px-4 py-1.5 bg-bg-secondary border-b border-border font-sans text-xs">
@@ -172,24 +173,7 @@ export function Toolbar(props: ToolbarProps) {
         )}
       </div>
       <div className="flex items-center gap-2 ml-auto shrink-0">
-        <div className="flex items-center rounded-md overflow-hidden">
-          <button
-            className={cn(baseBtn, 'flex items-center gap-1.5', viewMode === 'unified' ? activeBtn : inactiveBtn)}
-            onClick={() => onViewModeChange('unified')}
-            title="Unified view (u)"
-          >
-            <UnifiedViewIcon className="w-3.5 h-3.5" />
-            Unified
-          </button>
-          <button
-            className={cn(baseBtn, 'flex items-center gap-1.5', viewMode === 'split' ? activeBtn : inactiveBtn)}
-            onClick={() => onViewModeChange('split')}
-            title="Split view (s)"
-          >
-            <SplitViewIcon className="w-3.5 h-3.5" />
-            Split
-          </button>
-        </div>
+        <SegmentedToggle options={viewModeOptions} value={viewMode} onChange={onViewModeChange} />
         <CommentToolbarActions
           threads={threads}
           onScrollToThread={onScrollToThread}

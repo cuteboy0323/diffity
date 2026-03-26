@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { getDb } from './db.js';
+import { unescapeMarkdown } from './unescape.js';
 
 export interface ThreadAuthor {
   name: string;
@@ -115,13 +116,15 @@ export function createThread(
   const commentId = randomUUID();
   const now = new Date().toISOString();
 
+  const cleanBody = unescapeMarkdown(body);
+
   db.prepare(
     'INSERT INTO comment_threads (id, session_id, file_path, side, start_line, end_line, anchor_content, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
   ).run(threadId, sessionId, filePath, side, startLine, endLine, anchorContent ?? null, now, now);
 
   db.prepare(
     'INSERT INTO comments (id, thread_id, author_name, author_type, body, created_at) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(commentId, threadId, author.name, author.type, body, now);
+  ).run(commentId, threadId, author.name, author.type, cleanBody, now);
 
   return {
     id: threadId,
@@ -137,7 +140,7 @@ export function createThread(
     comments: [{
       id: commentId,
       author,
-      body,
+      body: cleanBody,
       createdAt: now,
     }],
   };
@@ -206,10 +209,11 @@ export function addReply(threadId: string, body: string, author: ThreadAuthor): 
   const db = getDb();
   const commentId = randomUUID();
   const now = new Date().toISOString();
+  const cleanBody = unescapeMarkdown(body);
 
   db.prepare(
     'INSERT INTO comments (id, thread_id, author_name, author_type, body, created_at) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(commentId, threadId, author.name, author.type, body, now);
+  ).run(commentId, threadId, author.name, author.type, cleanBody, now);
 
   if (author.type === 'user') {
     db.prepare(
@@ -224,7 +228,7 @@ export function addReply(threadId: string, body: string, author: ThreadAuthor): 
   return {
     id: commentId,
     author,
-    body,
+    body: cleanBody,
     createdAt: now,
   };
 }
@@ -239,9 +243,10 @@ export function updateThreadStatus(threadId: string, status: ThreadStatus, summa
 
   if (summaryBody && summaryAuthor) {
     const commentId = randomUUID();
+    const cleanSummary = unescapeMarkdown(summaryBody);
     db.prepare(
       'INSERT INTO comments (id, thread_id, author_name, author_type, body, created_at) VALUES (?, ?, ?, ?, ?, ?)'
-    ).run(commentId, threadId, summaryAuthor.name, summaryAuthor.type, summaryBody, now);
+    ).run(commentId, threadId, summaryAuthor.name, summaryAuthor.type, cleanSummary, now);
   }
 }
 
@@ -257,7 +262,7 @@ export function deleteAllThreadsForSession(sessionId: string): void {
 
 export function editComment(commentId: string, body: string): void {
   const db = getDb();
-  db.prepare('UPDATE comments SET body = ? WHERE id = ?').run(body, commentId);
+  db.prepare('UPDATE comments SET body = ? WHERE id = ?').run(unescapeMarkdown(body), commentId);
 }
 
 export function deleteComment(commentId: string): void {
