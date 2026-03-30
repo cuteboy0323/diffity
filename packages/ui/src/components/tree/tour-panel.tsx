@@ -5,6 +5,7 @@ import type { Tour } from '../../lib/api';
 import { CompassIcon } from '../icons/compass-icon';
 import { XIcon } from '../icons/x-icon';
 import { SidebarIcon } from '../icons/sidebar-icon';
+import { MermaidDiagram } from '../mermaid-diagram';
 
 interface TourPanelProps {
   tour: Tour;
@@ -75,6 +76,10 @@ function TourMarkdown(props: { content: string; onNavigateToFile?: (path: string
           const { children, className } = codeProps;
           const isBlock = className?.startsWith('language-') || (typeof children === 'string' && children.includes('\n'));
           if (isBlock) {
+            if (className === 'language-mermaid') {
+              const chart = typeof children === 'string' ? children.trim() : String(children ?? '').trim();
+              return <MermaidDiagram chart={chart} />;
+            }
             return <code className={className}>{children}</code>;
           }
           const text = typeof children === 'string' ? children : '';
@@ -93,9 +98,16 @@ function TourMarkdown(props: { content: string; onNavigateToFile?: (path: string
             <code className="px-1.5 py-0.5 bg-bg-tertiary rounded text-[10px] font-mono text-accent">{children}</code>
           );
         },
-        pre: ({ children }) => (
-          <pre className="my-2 p-2 bg-bg-tertiary rounded text-[10px] font-mono overflow-x-auto">{children}</pre>
-        ),
+        pre: ({ children, node }: any) => {
+          const codeEl = node?.children?.find((c: any) => c.tagName === 'code');
+          const isMermaid = codeEl?.properties?.className?.includes('language-mermaid');
+          if (isMermaid) {
+            return <>{children}</>;
+          }
+          return (
+            <pre className="my-2 p-2 bg-bg-tertiary rounded text-[10px] font-mono overflow-x-auto">{children}</pre>
+          );
+        },
         ul: ({ children }) => <ul className="mb-2 pl-4 space-y-1 list-disc">{children}</ul>,
         ol: ({ children }) => <ol className="mb-2 pl-4 space-y-1 list-decimal">{children}</ol>,
         li: ({ children }) => <li className="text-text">{children}</li>,

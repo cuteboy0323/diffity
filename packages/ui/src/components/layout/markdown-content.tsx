@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import type { Components } from 'react-markdown';
 import { useHighlighter } from '../../hooks/use-highlighter';
 import { getTheme } from '../../hooks/use-theme';
+import { MermaidDiagram } from '../mermaid-diagram';
 
 interface MarkdownContentProps {
   content: string;
@@ -46,13 +47,22 @@ export function MarkdownContent(props: MarkdownContentProps) {
         </blockquote>
       );
     },
-    pre({ children }) {
+    pre({ children, node }: any) {
+      const codeEl = node?.children?.find((c: any) => c.tagName === 'code');
+      const isMermaid = codeEl?.properties?.className?.includes('language-mermaid');
+      if (isMermaid) {
+        return <>{children}</>;
+      }
       return <div className="mb-1.5 last:mb-0">{children}</div>;
     },
     code({ className, children }) {
       const match = /language-(\w+)/.exec(className || '');
       const lang = match ? match[1] : null;
       const codeString = String(children).replace(/\n$/, '');
+
+      if (lang === 'mermaid') {
+        return <MermaidDiagram chart={codeString} />;
+      }
 
       if (!lang) {
         return (

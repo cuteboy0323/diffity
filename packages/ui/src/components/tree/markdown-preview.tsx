@@ -5,6 +5,7 @@ import rehypeRaw from 'rehype-raw';
 import type { Components } from 'react-markdown';
 import { useHighlighter } from '../../hooks/use-highlighter';
 import { getTheme } from '../../hooks/use-theme';
+import { MermaidDiagram } from '../mermaid-diagram';
 
 interface MarkdownPreviewProps {
   content: string[];
@@ -114,6 +115,10 @@ export function MarkdownPreview(props: MarkdownPreviewProps) {
       const match = /language-(\w+)/.exec(className);
       const lang = match ? match[1] : null;
       const codeString = String(childProps.children || '').replace(/\n$/, '');
+
+      if (lang === 'mermaid') {
+        return <MermaidDiagram chart={codeString} />;
+      }
 
       let highlighted: { text: string; color?: string }[][] | null = null;
       if (ready && lang) {

@@ -106,11 +106,27 @@ The tour UI has a dedicated explanation panel. The intro (from `tour-start --bod
 
      Use sub-highlights when a step covers 30+ lines and the narrative naturally breaks into distinct sections. The line ranges must be within the step's `--line` / `--end-line` range.
 
+   **Mermaid diagrams:**
+   When a concept is easier to understand visually — architecture relationships, data flows, state machines, sequence diagrams — include a mermaid code block. Don't force diagrams into every step; use them where they genuinely clarify the explanation. Good candidates:
+   - The intro (step 0) overview: a flow showing how components connect
+   - Steps involving multi-component interactions or request flows
+   - State machines or lifecycle transitions
+
+   Choose the most appropriate diagram type:
+   - `graph TD/LR` for architecture, module dependencies, data flow
+   - `sequenceDiagram` for call chains, request/response flows
+   - `stateDiagram-v2` for state machines, lifecycle transitions
+   - `classDiagram` for type hierarchies, struct relationships
+   - `flowchart` for algorithms, decision trees, control flow
+
+   Keep diagrams concise (under ~12 nodes). They render inline in the tour panel.
+
    **Don't:**
    - Write a wall of bullet points — use prose paragraphs with formatting
    - Just describe the syntax — explain the design decisions
    - Repeat information visible in the highlighted code
    - Use headers in step bodies (the annotation serves as the title)
+   - Force a diagram into every step — only add one when it genuinely helps
 
 3. **Finish the tour:**
    ```
