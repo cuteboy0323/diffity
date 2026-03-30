@@ -260,11 +260,13 @@ export function TreePage(props: TreePageProps) {
   }, []);
 
   const handleTourSubHighlight = useCallback((startLine: number, endLine: number, label: string) => {
+    setGotoHighlight(null);
     setTourSubHighlight({ startLine, endLine, label });
     setTourScrollTick(t => t + 1);
   }, []);
 
   const handleGotoFileLine = useCallback((path: string, startLine: number, endLine: number) => {
+    setTourSubHighlight(null);
     setInternalNav({ path, type: 'file' });
     setPreviewMode('code');
     setGotoHighlight({ filePath: path, startLine, endLine });
