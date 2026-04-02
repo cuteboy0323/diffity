@@ -227,12 +227,12 @@ export function startServer(options: ServerOptions): Promise<ServerResult> {
           try {
             const body = JSON.parse(await readBody(req));
             const { filePath, line } = body;
-            if (!filePath || typeof filePath !== 'string') {
+            if (typeof filePath !== 'string') {
               sendError(res, 400, 'Missing filePath');
               return;
             }
             const repoRoot = getRepoInfo().root;
-            const fullPath = join(repoRoot, filePath);
+            const fullPath = filePath ? join(repoRoot, filePath) : repoRoot;
             const gotoArg = line ? `${fullPath}:${line}` : fullPath;
             execFile('code', [repoRoot, '--goto', gotoArg], { timeout: 5000 }, () => {});
             sendJson(res, { ok: true });

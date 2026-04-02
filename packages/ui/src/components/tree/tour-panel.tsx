@@ -35,6 +35,16 @@ function resolveFilePath(text: string, filePaths: Set<string> | undefined): stri
   return null;
 }
 
+function linkifyLineReferences(content: string): string {
+  return content.replace(
+    /(?<!\[)\blines?\s+(\d+)(?:\s*[-–]\s*(\d+))?\b(?!\])/gi,
+    (match, start, end) => {
+      const range = end ? `${start}-${end}` : start;
+      return `[${match}](focus:${range})`;
+    },
+  );
+}
+
 function parseFocusHref(href: string): { startLine: number; endLine: number } | null {
   const match = href.match(/^focus:(\d+)(?:-(\d+))?$/);
   if (!match) {
@@ -166,7 +176,7 @@ function TourMarkdown(props: { content: string; onNavigateToFile?: (path: string
         ),
       }}
     >
-      {props.content}
+      {linkifyLineReferences(props.content)}
     </ReactMarkdown>
   );
 }
