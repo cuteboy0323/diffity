@@ -13,10 +13,13 @@ You are creating a guided code tour — a narrated, step-by-step walkthrough of 
 
 ## Arguments
 
-- `question` (required): The user's question or topic. Examples:
+- `question` (required): The user's question, topic, or concept. Examples:
   - `/diffity-tour how does authentication work?`
   - `/diffity-tour explain the request lifecycle`
   - `/diffity-tour how are comments stored and retrieved?`
+  - `/diffity-tour closures`
+  - `/diffity-tour async/await patterns`
+  - `/diffity-tour React hooks`
 
 ## CLI Reference
 
@@ -43,6 +46,7 @@ Before creating any tour steps, you must deeply understand the answer to the use
    - **Focused question** (e.g. "how does the login endpoint validate tokens?") → follow one code path end-to-end, 3-6 steps
    - **Feature question** (e.g. "how does authentication work?") → cover the feature's key flows and components, 6-10 steps
    - **System question** (e.g. "how does the app work?") → cover the architecture at a higher level, touching key subsystems without going deep into any one. 8-15 steps. Focus on entry points, data flow, and how pieces connect.
+   - **Concept question** (e.g. "closures", "async/await", "React hooks") → find real examples of this concept in the codebase and teach it progressively from simple to complex, 3-8 steps. See the **Concept tours** section below.
 
    If the question is too broad to answer well in a single tour (e.g. "explain everything"), mentally narrow it to the most interesting or important aspect and note in the intro what you're covering and what you're leaving out.
 
@@ -186,6 +190,21 @@ The tour UI has a dedicated explanation panel. The intro (from `tour-start --bod
 3. Tell the user the tour is ready:
 
    > Your tour is ready — check your browser.
+
+## Concept tours
+
+When the user asks about a **programming concept** rather than a feature or flow (e.g. "closures", "generics", "error handling patterns"), the tour becomes a teaching tool.
+
+**How concept tours differ from feature tours:**
+- **Research phase**: Instead of following an execution path, search the codebase for real instances of the concept. Use grep, glob, and file reads to find patterns. Look broadly — closures might appear as callbacks, factory functions, or event handlers.
+- **Example selection**: Pick 3-8 examples that cover different facets, progressing from simple to complex. Don't show 5 examples of the same usage.
+- **Intro body**: Write it for someone who may have never encountered this concept. Include: a jargon-free definition, why it exists (what problem it solves), a mental model or analogy, and what syntactic clues to look for.
+- **Step bodies**: Each step teaches one facet through a real example. Structure as: orient the reader in the code → point out the concept in action → explain why it's used here → key takeaway. Define jargon inline the first time it appears.
+- **Progression**: First example should make the reader think "oh, that's all it is?" Last example should be the most sophisticated usage.
+- **Summary step**: Recap 3-5 key rules, list 2-3 common mistakes, suggest related concepts to learn next.
+- **Sparse codebases**: If fewer than 3 real examples exist, create temporary teaching snippet files, use them as tour steps (clearly labeled as standalone examples), and delete them after the tour is created.
+
+All other tour guidelines (transitions, goto links, sub-highlights, mermaid diagrams, conclusion) still apply.
 
 ## Quality Checklist
 

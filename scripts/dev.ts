@@ -14,11 +14,12 @@ execSync('tsx scripts/link-dev.ts && npm run build:skills', {
   stdio: 'inherit',
 });
 
-const localClaudeSkillsDir = join(rootDir, '.claude', 'skills');
+const homeDir = process.env.HOME || process.env.USERPROFILE || '';
+const globalClaudeSkillsDir = join(homeDir, '.claude', 'skills');
 
 function cleanupDevSkills() {
   try {
-    rmSync(localClaudeSkillsDir, { recursive: true, force: true });
+    rmSync(globalClaudeSkillsDir, { recursive: true, force: true });
     console.log('Cleaned up dev skills');
   } catch {}
 }
